@@ -1,10 +1,11 @@
-use std::{error::Error, time::Duration};
+use std::time::Duration;
 
 use chromiumoxide::{Browser, BrowserConfig};
 use futures::StreamExt;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
+    dotenvy::dotenv()?;
     let (browser, mut handler) =
         Browser::launch(BrowserConfig::builder().with_head().build().unwrap()).await?;
 

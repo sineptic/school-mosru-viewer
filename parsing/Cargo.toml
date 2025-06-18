@@ -9,5 +9,6 @@ chromiumoxide = { version = "0.7.0", default-features = false, features = [
     "tokio",
     "tokio-runtime",
 ] }
+dotenvy = "0.15.7"
 futures = "0.3.31"
 tokio = { version = "1.45.1", features = ["macros", "net", "rt-multi-thread", "sync", "time"] }
