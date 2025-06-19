@@ -486,6 +486,7 @@ dependencies = [
  "anyhow",
  "dotenvy",
  "reqwest",
+ "serde",
  "tokio",
 ]
 
