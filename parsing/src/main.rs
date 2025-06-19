@@ -1,18 +1,16 @@
+use api::ApiEndpoint;
 use reqwest::header::HeaderMap;
 
-#[tokio::main]
-async fn main() -> anyhow::Result<()> {
-    dotenvy::dotenv()?;
-    let student_id = 31823383;
-    let url =
-        format!("https://school.mos.ru/api/family/web/v1/subject_marks?student_id={student_id}");
-    // let response = reqwest::get(url).await;
-    let authorization = std::env::var("MOSRU_BEARER").unwrap();
-    let client = reqwest::ClientBuilder::new()
+mod api;
+
+fn api_reqwest_client(authorization_token: impl AsRef<str>) -> reqwest::Client {
+    reqwest::ClientBuilder::new()
         .default_headers(HeaderMap::from_iter([
             (
                 reqwest::header::AUTHORIZATION,
-                format!("Bearer {authorization}").parse().unwrap(),
+                format!("Bearer {}", authorization_token.as_ref())
+                    .parse()
+                    .unwrap(),
             ),
             (
                 "x-mes-subsystem".parse().unwrap(),
@@ -20,10 +18,16 @@ async fn main() -> anyhow::Result<()> {
             ),
         ]))
         .build()
-        .unwrap();
+        .unwrap()
+}
 
-    let request = client.get(url).build().unwrap();
-    let response = client.execute(request).await?;
+#[tokio::main]
+async fn main() -> anyhow::Result<()> {
+    dotenvy::dotenv()?;
+    let client = api_reqwest_client(std::env::var("MOSRU_BEARER").unwrap());
+
+    let student_id = 31823383;
+    let response = client.get(api::Marks { student_id }.url()).send().await?;
     println!("{}", response.text().await?);
 
     Ok(())
