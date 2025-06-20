@@ -32,30 +32,20 @@ async fn main() -> anyhow::Result<()> {
     let student_id = 31823383;
     let response = client
         .get(
-            api::Schedule {
+            api::Homework {
                 student_id,
-                dates: vec![
-                    "2024-09-02".into(),
-                    "2024-09-03".into(),
-                    "2024-09-04".into(),
-                    "2024-09-05".into(),
-                    "2024-09-06".into(),
-                    "2024-09-07".into(),
-                    "2024-09-08".into(),
-                ],
+                from: "2024-09-01".into(),
+                to: "2025-06-22".into(),
             }
             .url(),
         )
         .send()
         .await?
-        .json::<raw_types::schedule::Schedule>()
+        .json::<raw_types::homework::Root>()
         .await?;
-    let lessons = response
-        .payload
-        .into_iter()
-        .flat_map(types::schedule::transform)
-        .collect::<Vec<_>>();
-    println!("{}", serde_json::to_string_pretty(&lessons).unwrap());
+
+    println!("{response:#?}");
+    // println!("{}", response.payload.len());
 
     Ok(())
 }

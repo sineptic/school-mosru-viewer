@@ -38,3 +38,20 @@ impl From<Schedule> for Url {
     }
 }
 impl ApiEndpoint for Schedule {}
+
+pub struct Homework {
+    pub student_id: u64,
+    pub from: String,
+    pub to: String,
+}
+impl From<Homework> for Url {
+    fn from(value: Homework) -> Self {
+        format!(
+            "https://school.mos.ru/api/family/web/v1/homeworks?from={}&to={}&student_id={}",
+            value.from, value.to, value.student_id,
+        )
+        .parse()
+        .unwrap()
+    }
+}
+impl ApiEndpoint for Homework {}
