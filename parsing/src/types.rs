@@ -81,3 +81,51 @@ pub mod marks {
         (subjects, marks.into_iter().flatten().collect())
     }
 }
+
+pub mod schedule {
+    use serde::Serialize;
+
+    use crate::raw_types::schedule as raw_types;
+    type Time = String;
+    type Date = String;
+
+    #[derive(Serialize)]
+    pub struct LessonSchedule {
+        pub id: u64,
+        pub subject_id: u64,
+        pub date: Date,
+        pub begin_time: Time,
+        pub end_time: Time,
+        pub bell_id: u64,
+        pub group_id: u64,
+        pub absence_reason_id: Option<u64>,
+        pub schedule_item_id: u64,
+        pub is_virtual: bool,
+    }
+    impl LessonSchedule {
+        fn from(value: raw_types::Lesson, date: Date) -> Option<Self> {
+            // panics needed to determine what data is useful.
+            assert!(!value.is_virtual);
+            Some(LessonSchedule {
+                id: value.lesson_id?,
+                subject_id: value.subject_id.unwrap(),
+                date,
+                begin_time: value.begin_time,
+                end_time: value.end_time,
+                bell_id: value.bell_id.unwrap(),
+                group_id: value.group_id,
+                absence_reason_id: value.absence_reason_id,
+                schedule_item_id: value.schedule_item_id,
+                is_virtual: value.is_virtual,
+            })
+        }
+    }
+    pub fn transform(raw_schedule: raw_types::DaySchedule) -> Vec<LessonSchedule> {
+        let date = raw_schedule.date;
+        raw_schedule
+            .lessons
+            .into_iter()
+            .filter_map(|l| LessonSchedule::from(l, date.clone()))
+            .collect()
+    }
+}

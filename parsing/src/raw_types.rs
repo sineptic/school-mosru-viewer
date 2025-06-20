@@ -1,3 +1,4 @@
+#[allow(unused)]
 pub mod marks {
     use serde::Deserialize;
     #[derive(Deserialize, Debug)]
@@ -8,7 +9,6 @@ pub mod marks {
 
     #[derive(Deserialize, Debug)]
     #[serde(deny_unknown_fields)]
-    #[allow(unused)]
     pub struct SubjectMarks {
         pub average: String,
         pub dynamic: String,
@@ -20,7 +20,6 @@ pub mod marks {
     }
     #[derive(Deserialize, Debug)]
     #[serde(deny_unknown_fields)]
-    #[allow(unused)]
     pub struct PeriodMarks {
         pub start: String,
         pub end: String,
@@ -53,5 +52,40 @@ pub mod marks {
         pub is_point: bool,
         pub is_exam: bool,
         pub original_grade_system_type: String,
+    }
+}
+
+#[allow(unused)]
+pub mod schedule {
+    use serde::{Deserialize, Serialize};
+
+    #[derive(Debug, Clone, Deserialize)]
+    pub struct Schedule {
+        pub payload: Vec<DaySchedule>,
+    }
+
+    #[derive(Debug, Clone, Deserialize)]
+    pub struct DaySchedule {
+        pub date: String,
+        pub lessons: Vec<Lesson>,
+    }
+
+    #[derive(Debug, Clone, Deserialize)]
+    pub struct Lesson {
+        pub lesson_id: Option<u64>,
+        pub begin_time: String,
+        pub end_time: String,
+        pub bell_id: Option<u64>,
+        pub subject_name: Option<String>,
+        pub lesson_type: String,
+        pub group_id: u64,
+        pub group_name: String,
+        pub lesson_education_type: String,
+        pub evaluation: (),
+        pub absence_reason_id: Option<u64>,
+        pub subject_id: Option<u64>,
+        pub lesson_name: Option<String>,
+        pub schedule_item_id: u64,
+        pub is_virtual: bool,
     }
 }

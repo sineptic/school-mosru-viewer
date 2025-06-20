@@ -1,6 +1,5 @@
 use api::ApiEndpoint;
 use reqwest::header::HeaderMap;
-use types::marks::extract_marks_info;
 
 mod api;
 
@@ -32,19 +31,31 @@ async fn main() -> anyhow::Result<()> {
 
     let student_id = 31823383;
     let response = client
-        .get(api::Marks { student_id }.url())
+        .get(
+            api::Schedule {
+                student_id,
+                dates: vec![
+                    "2024-09-02".into(),
+                    "2024-09-03".into(),
+                    "2024-09-04".into(),
+                    "2024-09-05".into(),
+                    "2024-09-06".into(),
+                    "2024-09-07".into(),
+                    "2024-09-08".into(),
+                ],
+            }
+            .url(),
+        )
         .send()
         .await?
-        .json::<raw_types::marks::Marks>()
+        .json::<raw_types::schedule::Schedule>()
         .await?;
-    let (subjects, marks) = extract_marks_info(response);
-    println!("{{");
-    println!(
-        "subjects: {},",
-        serde_json::to_string_pretty(&subjects).unwrap()
-    );
-    println!("marks: {}", serde_json::to_string_pretty(&marks).unwrap());
-    println!("}}");
+    let lessons = response
+        .payload
+        .into_iter()
+        .flat_map(types::schedule::transform)
+        .collect::<Vec<_>>();
+    println!("{}", serde_json::to_string_pretty(&lessons).unwrap());
 
     Ok(())
 }
