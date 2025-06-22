@@ -1,6 +1,9 @@
 #[allow(unused)]
 pub mod marks {
     use serde::Deserialize;
+
+    use crate::time;
+
     #[derive(Deserialize, Debug)]
     #[serde(deny_unknown_fields)]
     pub struct Marks {
@@ -14,15 +17,15 @@ pub mod marks {
         pub dynamic: String,
         pub periods: Vec<PeriodMarks>,
         pub subject_name: String,
-        pub subject_id: u32,
+        pub subject_id: u64,
         pub average_by_all: String,
         pub year_mark: Option<String>,
     }
     #[derive(Deserialize, Debug)]
     #[serde(deny_unknown_fields)]
     pub struct PeriodMarks {
-        pub start: String,
-        pub end: String,
+        pub start: time::Date,
+        pub end: time::Date,
         pub title: String,
         pub dynamic: String,
         pub value: String,
@@ -41,13 +44,13 @@ pub mod marks {
         pub values: (),
         pub comment: Option<String>,
         pub weight: u8,
-        pub point_date: Option<String>,
+        pub point_date: Option<time::Date>,
         pub control_form_name: String,
         pub comment_exists: bool,
         pub created_at: (),
         pub updated_at: (),
         pub criteria: (),
-        pub date: String,
+        pub date: time::Date,
         pub is_point: bool,
         pub is_exam: bool,
         pub original_grade_system_type: String,
@@ -58,6 +61,8 @@ pub mod marks {
 pub mod schedule {
     use serde::{Deserialize, Serialize};
 
+    use crate::time;
+
     #[derive(Debug, Deserialize)]
     #[serde(deny_unknown_fields)]
     pub struct Schedule {
@@ -67,7 +72,7 @@ pub mod schedule {
     #[derive(Debug, Deserialize)]
     #[serde(deny_unknown_fields)]
     pub struct DaySchedule {
-        pub date: String,
+        pub date: time::Date,
         pub lessons: Vec<Lesson>,
     }
 

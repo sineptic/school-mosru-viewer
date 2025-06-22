@@ -2,6 +2,7 @@ use api::ApiClient;
 
 mod api;
 mod raw_types;
+mod time;
 mod types;
 
 #[tokio::main]
@@ -16,7 +17,8 @@ async fn main() -> anyhow::Result<()> {
     };
     let response = client.trigger_endpoint(endpoint).await?;
 
-    println!("{}", serde_json::to_string_pretty(&response).unwrap());
+    // println!("{}", serde_json::to_string_pretty(&response).unwrap());
+    println!("{response:#?}");
 
     Ok(())
 }

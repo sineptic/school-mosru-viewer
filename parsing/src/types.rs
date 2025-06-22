@@ -1,12 +1,12 @@
 pub mod marks {
     use serde::Serialize;
 
-    use crate::raw_types::marks as raw_types;
-    type Date = String;
+    use crate::{raw_types::marks as raw_types, time};
+
     type MarkValue = u8;
     type MarkId = u64;
-    type SubjectId = u32;
-    #[derive(Serialize)]
+    type SubjectId = u64;
+    #[derive(Debug, Serialize)]
     pub struct Mark {
         pub id: MarkId,
         pub subject_id: SubjectId,
@@ -14,18 +14,18 @@ pub mod marks {
         pub weight: u8,
         pub control_form_name: String,
         pub comment: Option<String>,
-        pub point_date: Option<Date>,
-        pub date: Date,
+        pub point_date: Option<time::Date>,
+        pub date: time::Date,
         pub is_point: bool,
         pub is_exam: bool,
     }
-    #[derive(Serialize)]
+    #[derive(Debug, Serialize)]
     pub struct Period {
-        pub start: Date,
-        pub end: Date,
+        pub start: time::Date,
+        pub end: time::Date,
         pub period_mark: Option<MarkValue>,
     }
-    #[derive(Serialize)]
+    #[derive(Debug, Serialize)]
     pub struct Subject {
         pub id: SubjectId,
         pub name: String,
@@ -85,15 +85,15 @@ pub mod marks {
 pub mod schedule {
     use serde::Serialize;
 
-    use crate::raw_types::schedule as raw_types;
-    type Time = String;
-    type Date = String;
+    use crate::{raw_types::schedule as raw_types, time};
 
-    #[derive(Serialize)]
+    type Time = String;
+
+    #[derive(Debug, Serialize)]
     pub struct LessonSchedule {
         pub id: u64,
         pub subject_id: u64,
-        pub date: Date,
+        pub date: time::Date,
         pub begin_time: Time,
         pub end_time: Time,
         pub bell_id: u64,
@@ -103,7 +103,7 @@ pub mod schedule {
         pub is_virtual: bool,
     }
     impl LessonSchedule {
-        fn from(value: raw_types::Lesson, date: Date) -> Option<Self> {
+        fn from(value: raw_types::Lesson, date: time::Date) -> Option<Self> {
             // panics needed to determine what data is useful.
             assert!(!value.is_virtual);
             Some(LessonSchedule {
@@ -125,7 +125,7 @@ pub mod schedule {
         raw_schedule
             .lessons
             .into_iter()
-            .filter_map(|l| LessonSchedule::from(l, date.clone()))
+            .filter_map(|l| LessonSchedule::from(l, date))
             .collect()
     }
 }
