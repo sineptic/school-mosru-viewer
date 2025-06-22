@@ -1,7 +1,8 @@
+use std::{cmp::min, error::Error};
+
 use reqwest::{Client, Method, Url, header::HeaderMap};
 use serde::de::DeserializeOwned;
 
-use crate::time;
 
 pub struct ApiClient {
     client: Client,
@@ -39,8 +40,38 @@ impl ApiClient {
                 "Endpoint at url '{url}' return this error: '{text}' with this status code '{status}'",
             )
         }
-        let response = response.json::<E::RawResponse>().await?;
-        Ok(E::transform_response(response))
+        let response = response.text().await?;
+        match serde_json::from_str(&response) {
+            Ok(response) => Ok(E::transform_response(response)),
+            Err(json_err) => {
+                eprintln!("json decode error: {json_err}");
+                let line = json_err.line();
+                let column = json_err.column();
+                assert!(line == 1);
+                let start = column.saturating_sub(20);
+                let end = min(column + 20, response.len());
+                let span = &response[start..end];
+                eprintln!();
+                eprintln!("context: '{span}'");
+                eprintln!("{}^", " ".repeat(29));
+
+                panic!();
+            }
+        }
+        // let response = response.json::<E::RawResponse>().await.map_err(|err| {
+        //     let Some(source) = err.source() else {
+        //         return anyhow::anyhow!("{err}");
+        //     };
+        //     let Some(json_err): Option<&serde_json::Error> = source.downcast_ref() else {
+        //         return anyhow::anyhow!("{err}");
+        //     };
+        //     let line = json_err.line();
+        //     let column = json_err.column();
+        //     let reason = json_err.to_string();
+        //     response;
+
+        //     todo!();
+        // })?;
     }
 }
 
