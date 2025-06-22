@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 #[derive(Debug, Clone, Copy)]
@@ -43,15 +45,17 @@ impl<'de> Deserialize<'de> for Date {
         Ok(Self { year, month, day })
     }
 }
+impl Display for Date {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:04}-{:02}-{:02}", self.year, self.month, self.day)
+    }
+}
 impl Serialize for Date {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
     {
-        serializer.serialize_str(&format!(
-            "{:04}-{:02}-{:02}",
-            self.year, self.month, self.day
-        ))
+        serializer.serialize_str(&self.to_string())
     }
 }
 
@@ -88,11 +92,16 @@ impl<'de> Deserialize<'de> for Time {
         Ok(Self { hours, minutes })
     }
 }
+impl Display for Time {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:02}:{:02}", self.hours, self.minutes)
+    }
+}
 impl Serialize for Time {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
     {
-        serializer.serialize_str(&format!("{:02}:{:02}", self.hours, self.minutes))
+        serializer.serialize_str(&self.to_string())
     }
 }
