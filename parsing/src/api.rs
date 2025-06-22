@@ -1,8 +1,9 @@
-use std::{cmp::min, error::Error};
+use std::cmp::min;
 
 use reqwest::{Client, Method, Url, header::HeaderMap};
 use serde::de::DeserializeOwned;
 
+use crate::{raw_types, time};
 
 pub struct ApiClient {
     client: Client,
@@ -175,3 +176,29 @@ impl Schedule {
 //     }
 // }
 // impl ApiEndpoint for Homework {}
+
+pub struct LessonScheduleItems {
+    pub schedule_item_id: u64,
+    pub student_id: u64,
+}
+impl From<LessonScheduleItems> for Url {
+    fn from(value: LessonScheduleItems) -> Self {
+        format!(
+            "https://school.mos.ru/api/family/web/v1/lesson_schedule_items/531559037?student_id={}",
+            value.student_id
+        )
+        .parse()
+        .unwrap()
+    }
+}
+impl ApiEndpoint for LessonScheduleItems {
+    const METHOD: Method = Method::GET;
+
+    type RawResponse = raw_types::details::LessonDetails;
+
+    type ProcessedResponse = raw_types::details::LessonDetails;
+
+    fn transform_response(raw_response: Self::RawResponse) -> Self::ProcessedResponse {
+        raw_response
+    }
+}

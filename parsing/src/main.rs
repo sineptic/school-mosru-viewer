@@ -11,7 +11,10 @@ async fn main() -> anyhow::Result<()> {
     let client = ApiClient::new(std::env::var("MOSRU_BEARER").unwrap());
 
     let student_id = 31823383;
-    let endpoint = api::Schedule::new(student_id, ["2024-09-02"]);
+    let endpoint = api::LessonScheduleItems {
+        student_id,
+        schedule_item_id: 531559037,
+    };
     let response = client.trigger_endpoint(endpoint).await?;
 
     // println!("{}", serde_json::to_string_pretty(&response).unwrap());
