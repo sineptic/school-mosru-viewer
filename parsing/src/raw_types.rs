@@ -21,11 +21,12 @@ pub mod marks {
         pub average_by_all: String,
         pub year_mark: Option<String>,
     }
+    type YearDate = String;
     #[derive(Deserialize, Debug)]
     #[serde(deny_unknown_fields)]
     pub struct PeriodMarks {
-        pub start: time::Date,
-        pub end: time::Date,
+        pub start: YearDate,
+        pub end: YearDate,
         pub title: String,
         pub dynamic: String,
         pub value: String,
@@ -80,8 +81,8 @@ pub mod schedule {
     #[serde(deny_unknown_fields)]
     pub struct Lesson {
         pub lesson_id: Option<u64>,
-        pub begin_time: String,
-        pub end_time: String,
+        pub begin_time: time::Time,
+        pub end_time: time::Time,
         pub bell_id: Option<u64>,
         pub subject_name: Option<String>,
         pub lesson_type: String,

@@ -6,6 +6,8 @@ pub mod marks {
     type MarkValue = u8;
     type MarkId = u64;
     type SubjectId = u64;
+    type YearDate = String;
+
     #[derive(Debug, Serialize)]
     pub struct Mark {
         pub id: MarkId,
@@ -21,8 +23,8 @@ pub mod marks {
     }
     #[derive(Debug, Serialize)]
     pub struct Period {
-        pub start: time::Date,
-        pub end: time::Date,
+        pub start: YearDate,
+        pub end: YearDate,
         pub period_mark: Option<MarkValue>,
     }
     #[derive(Debug, Serialize)]
@@ -87,15 +89,13 @@ pub mod schedule {
 
     use crate::{raw_types::schedule as raw_types, time};
 
-    type Time = String;
-
     #[derive(Debug, Serialize)]
     pub struct LessonSchedule {
         pub id: u64,
         pub subject_id: u64,
         pub date: time::Date,
-        pub begin_time: Time,
-        pub end_time: Time,
+        pub begin_time: time::Time,
+        pub end_time: time::Time,
         pub bell_id: u64,
         pub group_id: u64,
         pub absence_reason_id: Option<u64>,
