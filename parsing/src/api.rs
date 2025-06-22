@@ -1,6 +1,8 @@
 use reqwest::{Client, Method, Url, header::HeaderMap};
 use serde::de::DeserializeOwned;
 
+use crate::time;
+
 pub struct ApiClient {
     client: Client,
 }
@@ -28,13 +30,16 @@ impl ApiClient {
         &self,
         endpoint: E,
     ) -> anyhow::Result<E::ProcessedResponse> {
-        let response = self
-            .client
-            .request(E::METHOD, endpoint.url())
-            .send()
-            .await?
-            .json::<E::RawResponse>()
-            .await?;
+        let url = endpoint.url();
+        let response = self.client.request(E::METHOD, url.clone()).send().await?;
+        if !response.status().is_success() {
+            let status = response.status();
+            let text = response.text().await?;
+            panic!(
+                "Endpoint at url '{url}' return this error: '{text}' with this status code '{status}'",
+            )
+        }
+        let response = response.json::<E::RawResponse>().await?;
         Ok(E::transform_response(response))
     }
 }
@@ -77,7 +82,7 @@ impl ApiEndpoint for Marks {
 
 pub struct Schedule {
     pub student_id: u64,
-    pub dates: Vec<String>,
+    pub dates: Vec<time::Date>,
 }
 impl From<Schedule> for Url {
     fn from(value: Schedule) -> Self {
@@ -85,7 +90,12 @@ impl From<Schedule> for Url {
         format!(
             "https://school.mos.ru/api/family/web/v1/schedule/short?student_id={}&dates={}",
             value.student_id,
-            value.dates.join("%2C")
+            value
+                .dates
+                .into_iter()
+                .map(|x| x.to_string())
+                .collect::<Vec<_>>()
+                .join("%2C")
         )
         .parse()
         .unwrap()
@@ -101,6 +111,20 @@ impl ApiEndpoint for Schedule {
             .into_iter()
             .flat_map(crate::types::schedule::transform)
             .collect()
+    }
+}
+impl Schedule {
+    pub fn new<D>(student_id: u64, dates: impl IntoIterator<Item = D>) -> Self
+    where
+        D: AsRef<str>,
+    {
+        Self {
+            student_id,
+            dates: dates
+                .into_iter()
+                .map(|d| d.as_ref().parse().unwrap())
+                .collect(),
+        }
     }
 }
 
