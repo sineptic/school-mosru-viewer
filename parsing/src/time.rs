@@ -2,11 +2,91 @@ use std::{fmt::Display, str::FromStr};
 
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Date {
     pub year: u64,
     pub month: u64,
     pub day: u64,
+}
+impl Date {
+    pub fn is_year_leap(year: u64) -> bool {
+        year.is_multiple_of(400) || year.is_multiple_of(4) && !year.is_multiple_of(100)
+    }
+    pub fn days_in_month(month: u64, is_leap: bool) -> u64 {
+        match month {
+            1 => 31,
+            2 => 28 + is_leap as u64,
+            3 => 31,
+            4 => 30,
+            5 => 31,
+            6 => 30,
+            7 => 31,
+            8 => 31,
+            9 => 30,
+            10 => 31,
+            11 => 30,
+            12 => 31,
+            _ => unreachable!(),
+        }
+    }
+    pub fn is_correct(&self) -> bool {
+        self.month >= 1
+            && self.month <= 12
+            && self.day >= 1
+            && self.day <= Self::days_in_month(self.month, Self::is_year_leap(self.year))
+    }
+    pub fn next_day(mut self) -> Self {
+        assert!(self.is_correct());
+        self.day += 1;
+        if !self.is_correct() {
+            self.month += 1;
+            self.day = 1;
+            if !self.is_correct() {
+                self.year += 1;
+                self.month = 1;
+            }
+        }
+        self
+    }
+    pub fn prev_day(mut self) -> Self {
+        assert!(self.is_correct());
+        self.day -= 1;
+        if !self.is_correct() {
+            self.month -= 1;
+            if !self.is_correct() {
+                self.year -= 1;
+                self.month = 12;
+            }
+            self.day = Self::days_in_month(self.month, Self::is_year_leap(self.year));
+        }
+        self
+    }
+    pub fn iterate_days_inclusive(start: Date, end: Date, mut callback: impl FnMut(Date)) {
+        assert!(start.is_correct());
+        assert!(end.is_correct());
+        assert!(start <= end);
+        let mut current = start;
+        while current <= end {
+            callback(current);
+            current = current.next_day();
+        }
+    }
+}
+impl PartialOrd for Date {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+impl Ord for Date {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        assert!(self.is_correct());
+        assert!(other.is_correct());
+        self.year.cmp(&other.year).then_with(|| {
+            self.month
+                .cmp(&other.month)
+                .then_with(|| self.day.cmp(&other.day))
+        })
+    }
 }
 impl FromStr for Date {
     type Err = &'static str;
