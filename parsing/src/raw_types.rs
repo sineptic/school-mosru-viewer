@@ -228,6 +228,7 @@ pub mod details {
         pub homework_created_at: String,
         pub homework_updated_at: String,
         pub is_done: bool,
+        pub is_smart: bool,
         pub additional_materials: Vec<AdditionalMaterial>,
         pub written_answer: (),
         pub date_assigned_on: String,
