@@ -49,12 +49,12 @@ impl ApiClient {
                 let line = json_err.line();
                 let column = json_err.column();
                 assert!(line == 1);
-                let start = column.saturating_sub(20);
-                let end = min(column + 20, response.len());
+                let start = column.saturating_sub(40);
+                let end = min(column + 40, response.len());
                 let span = &response[start..end];
                 eprintln!();
                 eprintln!("context: '{span}'");
-                eprintln!("{}^", " ".repeat(29));
+                eprintln!("{}^", " ".repeat(49));
 
                 panic!();
             }
@@ -184,8 +184,8 @@ pub struct LessonScheduleItems {
 impl From<LessonScheduleItems> for Url {
     fn from(value: LessonScheduleItems) -> Self {
         format!(
-            "https://school.mos.ru/api/family/web/v1/lesson_schedule_items/531559037?student_id={}",
-            value.student_id
+            "https://school.mos.ru/api/family/web/v1/lesson_schedule_items/{}?student_id={}",
+            value.schedule_item_id, value.student_id
         )
         .parse()
         .unwrap()

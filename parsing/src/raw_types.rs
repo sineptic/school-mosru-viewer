@@ -182,7 +182,7 @@ pub mod details {
         pub subject_id: u64,
         pub subject_name: String,
         pub teacher: Teacher,
-        pub course_lesson_type: (),
+        pub course_lesson_type: Option<String>,
         pub room_number: String,
         pub room_name: String,
         pub building_name: String,
@@ -193,16 +193,16 @@ pub mod details {
         pub field_name: (),
         pub comment: (),
         pub lesson_homeworks: Vec<LessonHomework>,
-        pub homework_to_give: Vec<HomeworkToGive>,
+        pub homework_to_give: Option<Vec<HomeworkToGive>>,
         pub details: Details,
         pub esz_field_id: (),
         pub teacher_comments: Vec<()>,
         pub lesson_type_nsi: (),
-        pub remote_lesson: (),
+        pub remote_lesson: Option<RemoteLessonInfo>,
         pub control: (),
         pub evaluation: (),
         pub lesson_education_type: String,
-        pub disease_status_type: (),
+        pub disease_status_type: Option<String>,
         pub theme_mastery: (),
         pub is_virtual: bool,
         pub homework_presence_status_id: u64,
@@ -210,10 +210,18 @@ pub mod details {
 
     #[derive(Debug, Deserialize)]
     #[serde(deny_unknown_fields)]
+    pub struct RemoteLessonInfo {
+        link_to_join: String,
+        link_to_record: (),
+        record_preview: (),
+    }
+
+    #[derive(Debug, Deserialize)]
+    #[serde(deny_unknown_fields)]
     pub struct Teacher {
-        pub last_name: String,
-        pub first_name: String,
-        pub middle_name: String,
+        pub last_name: Option<String>,
+        pub first_name: Option<String>,
+        pub middle_name: Option<String>,
         pub birth_date: (),
         pub sex: (),
         pub user_id: (),
@@ -247,7 +255,7 @@ pub mod details {
     #[serde(deny_unknown_fields)]
     pub struct Details {
         pub content: Vec<()>,
-        pub theme: Theme,
+        pub theme: Option<Theme>,
         #[serde(rename = "lessonId")]
         pub lesson_id: i64,
         pub lesson_topic: String,
