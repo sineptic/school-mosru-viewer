@@ -102,6 +102,8 @@ pub mod schedule {
 pub mod homework {
     use serde::Deserialize;
 
+    use crate::time;
+
     #[derive(Debug, Deserialize)]
     #[serde(deny_unknown_fields)]
     pub struct Root {
@@ -121,10 +123,10 @@ pub mod homework {
         pub attachments: Vec<()>,
         pub subject_id: u64,
         pub group_id: u64,
-        pub date: String,
-        pub date_assigned_on: String,
+        pub date: time::Date,
+        pub date_assigned_on: time::Date,
         pub subject_name: String,
-        pub lesson_date_time: String,
+        pub lesson_date_time: time::Time,
         pub is_done: bool,
         pub has_teacher_answer: bool,
         pub homework_id: u64,
@@ -132,7 +134,7 @@ pub mod homework {
         pub homework_created_at: String,
         pub homework_updated_at: String,
         pub written_answer: (),
-        pub date_prepared_for: String,
+        pub date_prepared_for: time::Date,
     }
 
     #[derive(Debug, Deserialize)]
@@ -165,17 +167,17 @@ pub mod homework {
 pub mod details {
     use serde::Deserialize;
 
-    use crate::raw_types::homework::AdditionalMaterial;
+    use crate::{raw_types::homework::AdditionalMaterial, time};
 
     #[derive(Debug, Deserialize)]
     #[serde(deny_unknown_fields)]
     pub struct LessonDetails {
         pub id: u64,
         pub plan_id: u64,
-        pub date: String,
-        pub begin_time: String,
+        pub date: time::Date,
+        pub begin_time: time::Time,
         pub begin_utc: u64,
-        pub end_time: String,
+        pub end_time: time::Time,
         pub end_utc: u64,
         pub subject_id: u64,
         pub subject_name: String,
