@@ -4,9 +4,9 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 #[derive(Debug, Clone, Copy)]
 pub struct Date {
-    year: u64,
-    month: u64,
-    day: u64,
+    pub year: u64,
+    pub month: u64,
+    pub day: u64,
 }
 impl FromStr for Date {
     type Err = &'static str;
@@ -68,8 +68,8 @@ impl Serialize for Date {
 
 #[derive(Debug, Clone, Copy)]
 pub struct Time {
-    hours: u64,
-    minutes: u64,
+    pub hours: u64,
+    pub minutes: u64,
 }
 impl FromStr for Time {
     type Err = &'static str;
