@@ -91,32 +91,28 @@ pub mod schedule {
 
     #[derive(Debug, Serialize)]
     pub struct LessonSchedule {
-        pub id: u64,
-        pub subject_id: u64,
+        pub lesson_id: Option<u64>,
+        pub subject_id: Option<u64>,
+        pub subject_name: Option<String>,
         pub date: time::Date,
         pub begin_time: time::Time,
         pub end_time: time::Time,
-        pub bell_id: u64,
-        pub group_id: u64,
         pub absence_reason_id: Option<u64>,
         pub schedule_item_id: u64,
-        pub is_virtual: bool,
     }
     impl LessonSchedule {
         fn from(value: raw_types::Lesson, date: time::Date) -> Option<Self> {
-            // panics needed to determine what data is useful.
             assert!(!value.is_virtual);
+
             Some(LessonSchedule {
-                id: value.lesson_id?,
-                subject_id: value.subject_id.unwrap(),
+                lesson_id: value.lesson_id,
+                subject_id: value.subject_id,
+                subject_name: value.subject_name,
                 date,
                 begin_time: value.begin_time,
                 end_time: value.end_time,
-                bell_id: value.bell_id.unwrap(),
-                group_id: value.group_id,
                 absence_reason_id: value.absence_reason_id,
                 schedule_item_id: value.schedule_item_id,
-                is_virtual: value.is_virtual,
             })
         }
     }
@@ -131,7 +127,7 @@ pub mod schedule {
 }
 
 pub mod homework {
-    use serde::Serialize;
+    use serde::{Deserialize, Serialize};
 
     use crate::{
         raw_types::{self},
@@ -142,13 +138,13 @@ pub mod homework {
     pub struct Homework {
         id: u64,
         task: String,
-        materials: Vec<AdditionalMaterial>,
         entry_id: u64,
         entry_student_id: u64,
         created_at: DateTime,
         updated_at: DateTime,
         assigned_on: Date,
         date_prepared_for: Date,
+        additional_materials: Vec<AdditionalMaterial>,
     }
 
     #[derive(Debug, Serialize)]
@@ -164,6 +160,9 @@ pub mod homework {
                 value.uuid.is_some() && value.id.is_none()
                     || value.uuid.is_none() && value.id.is_some()
             );
+            if let Some(id) = value.id {
+                dbg!(id);
+            }
 
             Self {
                 id: value.uuid.unwrap_or_else(|| value.id.unwrap().to_string()),
@@ -186,7 +185,7 @@ pub mod homework {
             Self {
                 id: value.homework_id,
                 task: value.homework,
-                materials: value.materials.into_iter().map(|x| x.into()).collect(),
+                additional_materials: value.materials.into_iter().map(|x| x.into()).collect(),
                 entry_id: value.homework_entry_id,
                 entry_student_id: value.homework_entry_student_id,
                 created_at: value.homework_created_at,
@@ -216,7 +215,7 @@ pub mod homework {
             Self {
                 id: value.homework_id,
                 task: value.homework,
-                materials: value
+                additional_materials: value
                     .additional_materials
                     .into_iter()
                     .map(|x| x.into())

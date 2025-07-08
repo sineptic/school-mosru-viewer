@@ -9,18 +9,18 @@ use crate::{
 #[serde(deny_unknown_fields)]
 pub struct LessonDetails {
     pub id: u64,
-    pub teacher: Teacher,
-    pub plan_id: u64,
+    pub subject_id: u64,
+    pub subject_name: String,
     pub date: Date,
     pub begin_time: Time,
     pub end_time: Time,
+    pub teacher: Teacher,
     pub room_number: String,
     pub lesson_homeworks: Vec<LessonHomework>,
 
     pub begin_utc: u64,
     pub end_utc: u64,
-    pub subject_id: u64,
-    pub subject_name: String,
+    pub plan_id: u64,
     pub course_lesson_type: Option<CourseLessonType>,
     pub room_name: String,
     pub building_name: String,

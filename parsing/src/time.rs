@@ -169,13 +169,15 @@ impl FromStr for DateTime {
             .split_once(" ")
             .or_else(|| s.split_once("T"))
             .ok_or("Date and time should be delimeted by ` ` or `T`")?;
-        let right = right
-            .strip_suffix(":00")
-            .ok_or("Time in DateTime should end with `:00`")?;
-        Ok(Self {
-            date: Date::from_str(left)?,
-            time: Time::from_str(right)?,
-        })
+
+        let date = Date::from_str(left)?;
+        let time = right.parse().or_else(|_| {
+            right
+                .strip_suffix(":00")
+                .ok_or("Time in DateTime should end with `:00`")
+                .and_then(|x| x.parse())
+        })?;
+        Ok(Self { date, time })
     }
 }
 
