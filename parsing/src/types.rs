@@ -196,4 +196,38 @@ pub mod homework {
             }
         }
     }
+    impl From<raw_types::details::LessonHomework> for Homework {
+        fn from(value: raw_types::details::LessonHomework) -> Self {
+            assert_eq!(
+                value.date_prepared_for.time,
+                Time {
+                    hours: 0,
+                    minutes: 0
+                }
+            );
+            assert_eq!(
+                value.date_assigned_on.time,
+                Time {
+                    hours: 0,
+                    minutes: 0
+                }
+            );
+
+            Self {
+                id: value.homework_id,
+                task: value.homework,
+                materials: value
+                    .additional_materials
+                    .into_iter()
+                    .map(|x| x.into())
+                    .collect(),
+                entry_id: value.homework_entry_id,
+                entry_student_id: value.homework_entry_student_id,
+                created_at: value.homework_created_at,
+                updated_at: value.homework_updated_at,
+                assigned_on: value.date_assigned_on.date,
+                date_prepared_for: value.date_prepared_for.date,
+            }
+        }
+    }
 }
