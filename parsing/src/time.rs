@@ -8,6 +8,17 @@ pub struct Date {
     pub month: u64,
     pub day: u64,
 }
+#[derive(Debug, Clone, Copy)]
+pub struct Time {
+    pub hours: u64,
+    pub minutes: u64,
+}
+#[derive(Debug, Clone, Copy)]
+pub struct DateTime {
+    pub date: Date,
+    pub time: Time,
+}
+
 impl Date {
     pub fn is_year_leap(year: u64) -> bool {
         year.is_multiple_of(400) || year.is_multiple_of(4) && !year.is_multiple_of(100)
@@ -123,34 +134,7 @@ impl FromStr for Date {
         Ok(Self { year, month, day })
     }
 }
-impl<'de> Deserialize<'de> for Date {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: Deserializer<'de>,
-    {
-        let input = String::deserialize(deserializer)?;
-        input.parse().map_err(serde::de::Error::custom)
-    }
-}
-impl Display for Date {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:04}-{:02}-{:02}", self.year, self.month, self.day)
-    }
-}
-impl Serialize for Date {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        serializer.serialize_str(&self.to_string())
-    }
-}
 
-#[derive(Debug, Clone, Copy)]
-pub struct Time {
-    pub hours: u64,
-    pub minutes: u64,
-}
 impl FromStr for Time {
     type Err = &'static str;
 
@@ -177,6 +161,49 @@ impl FromStr for Time {
         Ok(Self { hours, minutes })
     }
 }
+impl FromStr for DateTime {
+    type Err = &'static str;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let (left, right) = s
+            .split_once(" ")
+            .or_else(|| s.split_once("T"))
+            .ok_or("Date and time should be delimeted by ` ` or `T`")?;
+        let right = right
+            .strip_suffix(":00")
+            .ok_or("Time in DateTime should end with `:00`")?;
+        Ok(Self {
+            date: Date::from_str(left)?,
+            time: Time::from_str(right)?,
+        })
+    }
+}
+
+impl Display for Date {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:04}-{:02}-{:02}", self.year, self.month, self.day)
+    }
+}
+impl Display for Time {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:02}:{:02}", self.hours, self.minutes)
+    }
+}
+impl Display for DateTime {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{} {}", self.date, self.time)
+    }
+}
+
+impl<'de> Deserialize<'de> for Date {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let input = String::deserialize(deserializer)?;
+        input.parse().map_err(serde::de::Error::custom)
+    }
+}
 impl<'de> Deserialize<'de> for Time {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
@@ -186,12 +213,33 @@ impl<'de> Deserialize<'de> for Time {
         input.parse().map_err(serde::de::Error::custom)
     }
 }
-impl Display for Time {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:02}:{:02}", self.hours, self.minutes)
+impl<'de> Deserialize<'de> for DateTime {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let input = String::deserialize(deserializer)?;
+        input.parse().map_err(serde::de::Error::custom)
+    }
+}
+
+impl Serialize for Date {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(&self.to_string())
     }
 }
 impl Serialize for Time {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(&self.to_string())
+    }
+}
+impl Serialize for DateTime {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,

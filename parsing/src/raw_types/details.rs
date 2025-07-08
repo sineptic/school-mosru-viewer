@@ -2,7 +2,7 @@ use serde::Deserialize;
 
 use crate::{
     raw_types::{enums::*, homework::AdditionalMaterial},
-    time,
+    time::*,
 };
 
 #[derive(Debug, Deserialize)]
@@ -11,9 +11,9 @@ pub struct LessonDetails {
     pub id: u64,
     pub teacher: Teacher,
     pub plan_id: u64,
-    pub date: time::Date,
-    pub begin_time: time::Time,
-    pub end_time: time::Time,
+    pub date: Date,
+    pub begin_time: Time,
+    pub end_time: Time,
     pub room_number: String,
     pub lesson_homeworks: Vec<LessonHomework>,
 
@@ -50,7 +50,7 @@ pub struct LessonDetails {
 #[serde(deny_unknown_fields)]
 pub struct RemoteLessonInfo {
     link_to_join: String,
-    _link_to_record: (),
+    link_to_record: (),
     record_preview: (),
 }
 
@@ -60,6 +60,7 @@ pub struct Teacher {
     pub last_name: Option<String>,
     pub first_name: Option<String>,
     pub middle_name: Option<String>,
+
     pub birth_date: (),
     pub sex: (),
     pub user_id: (),
@@ -72,12 +73,12 @@ pub struct LessonHomework {
     pub homework_entry_student_id: u64,
     pub homework_id: u64,
     pub homework_entry_id: u64,
-    pub homework_created_at: String,
-    pub homework_updated_at: String,
+    pub homework_created_at: DateTime,
+    pub homework_updated_at: DateTime,
     pub is_done: bool,
     pub additional_materials: Vec<AdditionalMaterial>,
-    pub date_assigned_on: String,
-    pub date_prepared_for: String,
+    pub date_assigned_on: DateTime,
+    pub date_prepared_for: DateTime,
 
     pub is_smart: bool,
     pub attachments: Vec<()>,
@@ -93,12 +94,12 @@ pub struct HomeworkToGive {
 #[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Details {
-    pub content: Vec<()>,
     pub theme: Option<Theme>,
     #[serde(rename = "lessonId")]
     pub lesson_id: u64,
     pub lesson_topic: String,
     pub additional_materials: Vec<AdditionalMaterial>,
+    pub content: Vec<()>,
 }
 
 #[derive(Debug, Deserialize)]

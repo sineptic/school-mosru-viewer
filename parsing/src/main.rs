@@ -10,16 +10,10 @@ mod types;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    dotenvy::dotenv()?;
-    let client = ApiClient::new(std::env::var("MOSRU_BEARER").unwrap());
-    let student_id = 31823383;
+    let schedule: Vec<raw_types::details::LessonDetails> =
+        serde_json::from_str(&std::fs::read_to_string("detailed_schedule.json")?)?;
 
-    let dates = all_possible_dates();
-
-    let endpoint = api::Schedule { student_id, dates };
-    let response = client.trigger_endpoint(endpoint).await?;
-
-    let storage = &mut BTreeMap::<String, u32>::new();
+    // let storage = &mut BTreeMap::<String, u32>::new();
 
     // for day in response.payload {
     //     for lesson in day.lessons {
@@ -27,7 +21,7 @@ async fn main() -> anyhow::Result<()> {
     //     }
     // }
 
-    dbg!(storage);
+    // dbg!(storage);
 
     Ok(())
 }
