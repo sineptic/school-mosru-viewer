@@ -1,6 +1,6 @@
 use std::cmp::min;
 
-use reqwest::{Client, Method, Url, header::HeaderMap};
+use reqwest::{Method, Url, blocking::Client, header::HeaderMap};
 use serde::de::DeserializeOwned;
 
 use crate::{raw_types, time};
@@ -11,7 +11,7 @@ pub struct ApiClient {
 impl ApiClient {
     pub fn new(authorization_token: impl AsRef<str>) -> Self {
         Self {
-            client: reqwest::ClientBuilder::new()
+            client: reqwest::blocking::ClientBuilder::new()
                 .default_headers(HeaderMap::from_iter([
                     (
                         reqwest::header::AUTHORIZATION,
@@ -28,20 +28,20 @@ impl ApiClient {
                 .unwrap(),
         }
     }
-    pub async fn trigger_endpoint<E: ApiEndpoint>(
+    pub fn trigger_endpoint<E: ApiEndpoint>(
         &self,
         endpoint: E,
     ) -> anyhow::Result<E::ProcessedResponse> {
         let url = endpoint.url();
-        let response = self.client.request(E::METHOD, url.clone()).send().await?;
+        let response = self.client.request(E::METHOD, url.clone()).send()?;
         if !response.status().is_success() {
             let status = response.status();
-            let text = response.text().await?;
+            let text = response.text()?;
             panic!(
                 "Endpoint at url '{url}' return this error: '{text}' with this status code '{status}'",
             )
         }
-        let response = response.text().await?;
+        let response = response.text()?;
         match serde_json::from_str(&response) {
             Ok(response) => Ok(E::transform_response(response)),
             Err(json_err) => {

@@ -8,8 +8,7 @@ mod raw_types;
 mod time;
 mod types;
 
-#[tokio::main]
-async fn main() -> anyhow::Result<()> {
+fn main() -> anyhow::Result<()> {
     let schedule: Vec<raw_types::details::LessonDetails> =
         serde_json::from_str(&std::fs::read_to_string("detailed_schedule.json")?)?;
 
