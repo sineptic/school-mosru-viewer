@@ -8,12 +8,12 @@ pub struct Date {
     pub month: u64,
     pub day: u64,
 }
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Time {
     pub hours: u64,
     pub minutes: u64,
 }
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct DateTime {
     pub date: Date,
     pub time: Time,

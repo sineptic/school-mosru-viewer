@@ -129,3 +129,71 @@ pub mod schedule {
             .collect()
     }
 }
+
+pub mod homework {
+    use serde::Serialize;
+
+    use crate::{
+        raw_types::{self},
+        time::*,
+    };
+
+    #[derive(Debug, Serialize)]
+    pub struct Homework {
+        id: u64,
+        task: String,
+        materials: Vec<AdditionalMaterial>,
+        entry_id: u64,
+        entry_student_id: u64,
+        created_at: DateTime,
+        updated_at: DateTime,
+        assigned_on: Date,
+        date_prepared_for: Date,
+    }
+
+    #[derive(Debug, Serialize)]
+    pub struct AdditionalMaterial {
+        id: String,
+        title: Option<String>,
+        urls: Vec<String>,
+    }
+
+    impl From<raw_types::homework::AdditionalMaterial> for AdditionalMaterial {
+        fn from(value: raw_types::homework::AdditionalMaterial) -> Self {
+            assert!(
+                value.uuid.is_some() && value.id.is_none()
+                    || value.uuid.is_none() && value.id.is_some()
+            );
+
+            Self {
+                id: value.uuid.unwrap_or_else(|| value.id.unwrap().to_string()),
+                title: value.title,
+                urls: value.urls.into_iter().map(|x| x.url).collect(),
+            }
+        }
+    }
+    impl From<raw_types::homework::Homework> for Homework {
+        fn from(value: raw_types::homework::Homework) -> Self {
+            assert_eq!(value.homework, value.description);
+            assert_eq!(
+                value.date_prepared_for.time,
+                Time {
+                    hours: 0,
+                    minutes: 0
+                }
+            );
+
+            Self {
+                id: value.homework_id,
+                task: value.homework,
+                materials: value.materials.into_iter().map(|x| x.into()).collect(),
+                entry_id: value.homework_entry_id,
+                entry_student_id: value.homework_entry_student_id,
+                created_at: value.homework_created_at,
+                updated_at: value.homework_updated_at,
+                assigned_on: value.date_assigned_on,
+                date_prepared_for: value.date_prepared_for.date,
+            }
+        }
+    }
+}

@@ -3,7 +3,10 @@ use std::cmp::min;
 use reqwest::{Method, Url, blocking::Client, header::HeaderMap};
 use serde::de::DeserializeOwned;
 
-use crate::{raw_types, time};
+use crate::{
+    raw_types,
+    time::{self, Date},
+};
 
 pub struct ApiClient {
     client: Client,
@@ -160,22 +163,36 @@ impl Schedule {
     }
 }
 
-// pub struct Homework {
-//     pub student_id: u64,
-//     pub from: String,
-//     pub to: String,
-// }
-// impl From<Homework> for Url {
-//     fn from(value: Homework) -> Self {
-//         format!(
-//             "https://school.mos.ru/api/family/web/v1/homeworks?from={}&to={}&student_id={}",
-//             value.from, value.to, value.student_id,
-//         )
-//         .parse()
-//         .unwrap()
-//     }
-// }
-// impl ApiEndpoint for Homework {}
+pub struct Homework {
+    pub student_id: u64,
+    pub from: Date,
+    pub to: Date,
+}
+impl From<Homework> for Url {
+    fn from(value: Homework) -> Self {
+        format!(
+            "https://school.mos.ru/api/family/web/v1/homeworks?from={}&to={}&student_id={}",
+            value.from, value.to, value.student_id,
+        )
+        .parse()
+        .unwrap()
+    }
+}
+impl ApiEndpoint for Homework {
+    const METHOD: Method = Method::GET;
+
+    type RawResponse = crate::raw_types::homework::Root;
+
+    type ProcessedResponse = Vec<crate::types::homework::Homework>;
+
+    fn transform_response(raw_response: Self::RawResponse) -> Self::ProcessedResponse {
+        raw_response
+            .payload
+            .into_iter()
+            .map(crate::types::homework::Homework::from)
+            .collect::<Vec<_>>()
+    }
+}
 
 pub struct LessonScheduleItems {
     pub schedule_item_id: u64,

@@ -9,31 +9,38 @@ mod time;
 mod types;
 
 fn main() -> anyhow::Result<()> {
-    let schedule: Vec<raw_types::details::LessonDetails> =
-        serde_json::from_str(&std::fs::read_to_string("detailed_schedule.json")?)?;
+    dotenvy::dotenv()?;
+    let client = ApiClient::new(std::env::var("MOSRU_BEARER")?);
+    let student_id = 31823383;
 
-    // let storage = &mut BTreeMap::<String, u32>::new();
-
-    // for day in response.payload {
-    //     for lesson in day.lessons {
-    //         register_maybe(storage, lesson.bell_id);
-    //     }
-    // }
-
-    // dbg!(storage);
+    let endpoint = api::Homework {
+        student_id,
+        from: Date {
+            year: 2024,
+            month: 9,
+            day: 1,
+        },
+        to: Date {
+            year: 2025,
+            month: 5,
+            day: 31,
+        },
+    };
+    let response = client.trigger_endpoint(endpoint)?;
+    std::fs::write("homeworks.json", serde_json::to_string_pretty(&response)?)?;
 
     Ok(())
 }
 
-fn register(storage: &mut BTreeMap<String, u32>, key: impl ToString) {
+fn _register(storage: &mut BTreeMap<String, u32>, key: impl ToString) {
     *storage.entry(key.to_string()).or_default() += 1;
 }
 
-fn register_maybe(storage: &mut BTreeMap<String, u32>, key: Option<impl ToString>) {
-    register(storage, key.map(|x| x.to_string()).unwrap_or("none".into()))
+fn _register_maybe(storage: &mut BTreeMap<String, u32>, key: Option<impl ToString>) {
+    _register(storage, key.map(|x| x.to_string()).unwrap_or("none".into()))
 }
 
-fn all_possible_dates() -> Vec<Date> {
+fn _all_possible_dates() -> Vec<Date> {
     let mut dates = Vec::new();
     let start = Date {
         year: 2024,
