@@ -1,13 +1,44 @@
-use std::time::Duration;
+use std::collections::BTreeMap;
 
-use api::ApiClient;
-
-use crate::time::Date;
+use crate::{api::ApiClient, time::Date};
 
 mod api;
+#[allow(unused)]
 mod raw_types;
 mod time;
 mod types;
+
+#[tokio::main]
+async fn main() -> anyhow::Result<()> {
+    dotenvy::dotenv()?;
+    let client = ApiClient::new(std::env::var("MOSRU_BEARER").unwrap());
+    let student_id = 31823383;
+
+    let dates = all_possible_dates();
+
+    let endpoint = api::Schedule { student_id, dates };
+    let response = client.trigger_endpoint(endpoint).await?;
+
+    let storage = &mut BTreeMap::<String, u32>::new();
+
+    // for day in response.payload {
+    //     for lesson in day.lessons {
+    //         register_maybe(storage, lesson.bell_id);
+    //     }
+    // }
+
+    dbg!(storage);
+
+    Ok(())
+}
+
+fn register(storage: &mut BTreeMap<String, u32>, key: impl ToString) {
+    *storage.entry(key.to_string()).or_default() += 1;
+}
+
+fn register_maybe(storage: &mut BTreeMap<String, u32>, key: Option<impl ToString>) {
+    register(storage, key.map(|x| x.to_string()).unwrap_or("none".into()))
+}
 
 fn all_possible_dates() -> Vec<Date> {
     let mut dates = Vec::new();
@@ -23,36 +54,4 @@ fn all_possible_dates() -> Vec<Date> {
     };
     Date::iterate_days_inclusive(start, end, |date| dates.push(date));
     dates
-}
-
-#[tokio::main]
-async fn main() -> anyhow::Result<()> {
-    dotenvy::dotenv()?;
-    let client = ApiClient::new(std::env::var("MOSRU_BEARER").unwrap());
-    let student_id = 31823383;
-
-    let dates = all_possible_dates();
-
-    let endpoint = api::Schedule { student_id, dates };
-    let response = client.trigger_endpoint(endpoint).await?;
-
-    let schedule_ids = response.into_iter().map(|x| x.schedule_item_id);
-
-    for schedule_item_id in schedule_ids {
-        println!("\nid: {schedule_item_id}");
-
-        std::thread::sleep(Duration::from_secs(1));
-        let endpoint = api::LessonScheduleItems {
-            schedule_item_id,
-            student_id,
-        };
-        let response = client.trigger_endpoint(endpoint).await?;
-        dbg!(&response);
-        println!("{response:#?}");
-    }
-
-    // println!("{}", serde_json::to_string_pretty(&response).unwrap());
-    // println!("{response:#?}");
-
-    Ok(())
 }
