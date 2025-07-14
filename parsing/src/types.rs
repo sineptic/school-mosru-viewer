@@ -136,22 +136,22 @@ pub mod homework {
 
     #[derive(Debug, Serialize)]
     pub struct Homework {
-        id: u64,
-        task: String,
-        entry_id: u64,
-        entry_student_id: u64,
-        created_at: DateTime,
-        updated_at: DateTime,
-        assigned_on: Date,
-        date_prepared_for: Date,
-        additional_materials: Vec<AdditionalMaterial>,
+        pub id: u64,
+        pub task: String,
+        pub entry_id: u64,
+        pub entry_student_id: u64,
+        pub created_at: DateTime,
+        pub updated_at: DateTime,
+        pub assigned_on: Date,
+        pub date_prepared_for: Date,
+        pub additional_materials: Vec<AdditionalMaterial>,
     }
 
     #[derive(Debug, Serialize)]
     pub struct AdditionalMaterial {
-        id: String,
-        title: Option<String>,
-        urls: Vec<String>,
+        pub id: String,
+        pub title: Option<String>,
+        pub urls: Vec<String>,
     }
 
     impl From<raw_types::homework::AdditionalMaterial> for AdditionalMaterial {

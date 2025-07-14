@@ -3,3 +3,5 @@ marks.json
 schedule.json
 homeworks.json
 detailed_schedule.json
+
+db.sqlite

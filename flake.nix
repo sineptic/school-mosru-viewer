@@ -27,6 +27,8 @@
           xorg.libxcb
           xorg.libX11.dev
           pkg-config
+
+          sqlite
         ];
 
         RUST_LOG = "debug";
