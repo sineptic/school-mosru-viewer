@@ -134,7 +134,7 @@ pub mod homework {
         time::*,
     };
 
-    #[derive(Debug, Serialize)]
+    #[derive(Debug, Serialize, Deserialize)]
     pub struct Homework {
         pub id: u64,
         pub task: String,
@@ -147,7 +147,7 @@ pub mod homework {
         pub additional_materials: Vec<AdditionalMaterial>,
     }
 
-    #[derive(Debug, Serialize)]
+    #[derive(Debug, Serialize, Deserialize)]
     pub struct AdditionalMaterial {
         pub id: String,
         pub title: Option<String>,

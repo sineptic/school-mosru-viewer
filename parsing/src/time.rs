@@ -1,5 +1,9 @@
 use std::{fmt::Display, str::FromStr};
 
+use rusqlite::{
+    ToSql,
+    types::{FromSql, FromSqlError, FromSqlResult, ToSqlOutput},
+};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -247,5 +251,57 @@ impl Serialize for DateTime {
         S: Serializer,
     {
         serializer.serialize_str(&self.to_string())
+    }
+}
+
+impl ToSql for Date {
+    fn to_sql(&self) -> rusqlite::Result<ToSqlOutput<'_>> {
+        Ok(ToSqlOutput::Owned(rusqlite::types::Value::Text(
+            serde_json::to_string(self).unwrap(),
+        )))
+    }
+}
+impl ToSql for Time {
+    fn to_sql(&self) -> rusqlite::Result<ToSqlOutput<'_>> {
+        Ok(ToSqlOutput::Owned(rusqlite::types::Value::Text(
+            serde_json::to_string(self).unwrap(),
+        )))
+    }
+}
+impl ToSql for DateTime {
+    fn to_sql(&self) -> rusqlite::Result<ToSqlOutput<'_>> {
+        Ok(ToSqlOutput::Owned(rusqlite::types::Value::Text(
+            serde_json::to_string(self).unwrap(),
+        )))
+    }
+}
+impl FromSql for Date {
+    fn column_result(value: rusqlite::types::ValueRef<'_>) -> FromSqlResult<Self> {
+        match value {
+            rusqlite::types::ValueRef::Text(items) => {
+                serde_json::from_slice(items).map_err(|x| FromSqlError::Other(Box::new(x)))
+            }
+            _ => Err(FromSqlError::InvalidType),
+        }
+    }
+}
+impl FromSql for Time {
+    fn column_result(value: rusqlite::types::ValueRef<'_>) -> FromSqlResult<Self> {
+        match value {
+            rusqlite::types::ValueRef::Text(items) => {
+                serde_json::from_slice(items).map_err(|x| FromSqlError::Other(Box::new(x)))
+            }
+            _ => Err(FromSqlError::InvalidType),
+        }
+    }
+}
+impl FromSql for DateTime {
+    fn column_result(value: rusqlite::types::ValueRef<'_>) -> FromSqlResult<Self> {
+        match value {
+            rusqlite::types::ValueRef::Text(items) => {
+                serde_json::from_slice(items).map_err(|x| FromSqlError::Other(Box::new(x)))
+            }
+            _ => Err(FromSqlError::InvalidType),
+        }
     }
 }
