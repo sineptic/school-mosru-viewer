@@ -5,6 +5,7 @@ use serde::{Serialize, de::DeserializeOwned};
 use crate::types::{
     self,
     homework::{AdditionalMaterial, Homework},
+    schedule::LessonSchedule,
 };
 pub struct Database {
     pub connection: Connection,
@@ -17,23 +18,36 @@ impl Database {
         let connection = Connection::open("db.sqlite")?;
         connection.execute(
             "CREATE TABLE IF NOT EXISTS additional_homework_materials (
-                    id    TEXT PRIMARY KEY,
-                    title TEXT,
-                    urls  TEXT NOT NULL
-                )",
+                id    TEXT PRIMARY KEY,
+                title TEXT,
+                urls  TEXT NOT NULL
+            )",
             (),
         )?;
         connection.execute(
             "CREATE TABLE IF NOT EXISTS homeworks (
-                    id                   INTEGER PRIMARY KEY,
-                    task                 TEXT NOT NULL,
-                    subject_name         TEXT NOT NULL,
-                    created_at           TEXT NOT NULL,
-                    updated_at           TEXT NOT NULL,
-                    assigned_on          TEXT NOT NULL,
-                    date_prepared_for    TEXT NOT NULL,
-                    additional_materials TEXT NOT NULL
-                )",
+                id                   INTEGER PRIMARY KEY,
+                task                 TEXT NOT NULL,
+                subject_name         TEXT NOT NULL,
+                created_at           TEXT NOT NULL,
+                updated_at           TEXT NOT NULL,
+                assigned_on          TEXT NOT NULL,
+                date_prepared_for    TEXT NOT NULL,
+                additional_materials TEXT NOT NULL
+            )",
+            (),
+        )?;
+        connection.execute(
+            "CREATE TABLE IF NOT EXISTS lesson_schedules (
+                subject_name      TEXT NOT NULL,
+                room_number       TEXT,
+                date              TEXT NOT NULL,
+                begin_time        TEXT NOT NULL,
+                end_time          TEXT NOT NULL,
+                absence_reason_id INTEGER,
+                schedule_item_id  INTEGER NOT NULL,
+                UNIQUE(schedule_item_id)
+            )",
             (),
         )?;
         Ok(Self { connection })
@@ -125,6 +139,25 @@ impl MutDatabase<'_> {
 
         for hw in other {
             stmt.execute(hw).context("Failed to store homework")?;
+        }
+        Ok(())
+    }
+
+    pub fn store_lesson_schedules(&self, lesson_schedules: Vec<LessonSchedule>) -> Result<()> {
+        let mut stmt = self.transaction.prepare_cached(
+            "INSERT OR IGNORE INTO lesson_schedules (subject_name, room_number, date, begin_time, end_time, absence_reason_id, schedule_item_id)
+                VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)"
+        )?;
+        for lesson_schedule in lesson_schedules {
+            stmt.execute((
+                lesson_schedule.subject_name,
+                lesson_schedule.room_number,
+                lesson_schedule.date,
+                lesson_schedule.begin_time,
+                lesson_schedule.end_time,
+                lesson_schedule.absence_reason_id,
+                lesson_schedule.schedule_item_id,
+            ))?;
         }
         Ok(())
     }

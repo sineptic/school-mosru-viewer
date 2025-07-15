@@ -13,13 +13,14 @@ mod database;
 fn main() -> anyhow::Result<()> {
     use database::*;
     let mut db = Database::open()?;
-    let hws: Vec<types::homework::Homework> =
-        serde_json::from_str(&std::fs::read_to_string("homeworks.json")?)?;
+    let schedule: Vec<types::schedule::LessonSchedule> =
+        serde_json::from_str(&std::fs::read_to_string("schedule.json")?)?;
+    dbg!(schedule.len());
     let now = Instant::now();
-    // let mut stmt = db.connection.prepare("select * from homeworks")?;
+    // let mut stmt = db.connection.prepare("select * from lesson_schedules")?;
     // let count = stmt.query(())?.count()?;
     db.transaction(|tr| {
-        tr.store_homeworks(hws)?;
+        tr.store_lesson_schedules(schedule)?;
         Ok(())
     })?;
     let elapsed = now.elapsed();

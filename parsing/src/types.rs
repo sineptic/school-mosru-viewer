@@ -85,13 +85,13 @@ pub mod marks {
 }
 
 pub mod schedule {
-    use serde::Serialize;
+    use serde::{Deserialize, Serialize};
 
     use crate::{raw_types::schedule as raw_types, time};
 
     type Loading<T> = Option<T>;
 
-    #[derive(Debug, Serialize)]
+    #[derive(Debug, Serialize, Deserialize)]
     pub struct LessonSchedule {
         pub subject_name: String,
         pub room_number: Loading<String>,
