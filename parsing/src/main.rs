@@ -1,27 +1,27 @@
 use std::{collections::BTreeMap, time::Instant};
 
-use crate::{api::ApiClient, time::Date};
+use crate::{api::ApiClient, raw_types::enums::LessonEducationType, time::Date};
 
-mod api;
+pub mod api;
 #[allow(unused)]
 mod raw_types;
-mod time;
-mod types;
+pub mod time;
+pub mod types;
 
 mod database;
 
 fn main() -> anyhow::Result<()> {
-    // use database::*;
-    // let mut db = Database::open()?;
-    // let schedule: Vec<types::schedule::LessonSchedule> =
-    //     serde_json::from_str(&std::fs::read_to_string("schedule.json")?)?;
-    // let now = Instant::now();
-    // db.transaction(|tr| {
-    //     tr.store_lesson_schedules(schedule)?;
-    //     Ok(())
-    // })?;
-    // let elapsed = now.elapsed();
-    // dbg!(elapsed);
+    use database::*;
+    let schedule: Vec<types::schedule::LessonSchedule> =
+        serde_json::from_str(&std::fs::read_to_string("schedule.json")?)?;
+    let mut db = Database::open()?;
+    let now = Instant::now();
+    db.transaction(|tr| {
+        tr.store_lesson_schedules(schedule)?;
+        Ok(())
+    })?;
+    let elapsed = now.elapsed();
+    dbg!(elapsed);
 
     // let detailed_schedule: Vec<raw_types::details::LessonDetails> =
     //     serde_json::from_str(&std::fs::read_to_string("detailed_schedule.json")?)?;
@@ -42,18 +42,17 @@ fn main() -> anyhow::Result<()> {
     //     assert!(lesson_schedule.room_number.parse::<u32>().is_ok());
     // }
 
-    dotenvy::dotenv()?;
-    let client = ApiClient::new(std::env::var("MOSRU_BEARER")?);
-    let student_id = 31823383;
+    // dotenvy::dotenv()?;
+    // let client = ApiClient::new(std::env::var("MOSRU_BEARER")?);
+    // let student_id = 31823383;
 
-    let endpoint = api::LessonScheduleItems {
-        student_id,
-        schedule_item_id: 28864937,
-        // schedule_item_id: 460496683,
-    };
-    let response = client.trigger_endpoint(endpoint)?;
-    dbg!(response);
-    // std::fs::write("homeworks.json", serde_json::to_string_pretty(&response)?)?;
+    // let endpoint = api::Schedule {
+    //     student_id,
+    //     dates: _all_possible_dates(),
+    // };
+    // let response = client.trigger_endpoint(endpoint)?;
+    // // dbg!(response);
+    // std::fs::write("schedule.json", serde_json::to_string_pretty(&response)?)?;
 
     Ok(())
 }

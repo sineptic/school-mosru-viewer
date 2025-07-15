@@ -4,7 +4,7 @@ use reqwest::{Method, Url, blocking::Client, header::HeaderMap};
 use serde::de::DeserializeOwned;
 
 use crate::{
-    raw_types,
+    raw_types::{self, enums::LessonEducationType},
     time::{self, Date},
 };
 
@@ -202,13 +202,14 @@ impl ApiEndpoint for Homework {
 
 pub struct LessonScheduleItems {
     pub schedule_item_id: u64,
+    pub lesson_type: LessonEducationType,
     pub student_id: u64,
 }
 impl From<LessonScheduleItems> for Url {
     fn from(value: LessonScheduleItems) -> Self {
         format!(
-            "https://school.mos.ru/api/family/web/v1/lesson_schedule_items/{}?student_id={}&type=EC",
-            value.schedule_item_id, value.student_id
+            "https://school.mos.ru/api/family/web/v1/lesson_schedule_items/{}?student_id={}&type={}",
+            value.schedule_item_id, value.student_id, value.lesson_type
         )
         .parse()
         .unwrap()

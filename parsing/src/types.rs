@@ -87,7 +87,10 @@ pub mod marks {
 pub mod schedule {
     use serde::{Deserialize, Serialize};
 
-    use crate::{raw_types::schedule as raw_types, time};
+    use crate::{
+        raw_types::{enums::LessonEducationType, schedule as raw_types},
+        time,
+    };
 
     type Loading<T> = Option<T>;
 
@@ -100,6 +103,7 @@ pub mod schedule {
         pub end_time: time::Time,
         pub absence_reason_id: Option<u64>,
         pub schedule_item_id: u64,
+        pub lesson_type: LessonEducationType,
     }
     impl LessonSchedule {
         fn from(value: raw_types::Lesson, date: time::Date) -> Option<Self> {
@@ -113,6 +117,7 @@ pub mod schedule {
                 end_time: value.end_time,
                 absence_reason_id: value.absence_reason_id,
                 schedule_item_id: value.schedule_item_id,
+                lesson_type: value.lesson_education_type,
             })
         }
     }

@@ -20,40 +20,47 @@ impl Database {
             .with_context(|| format!("Failed to open database at `{file_name}`"))?;
         connection
             .execute(
-                "CREATE TABLE IF NOT EXISTS additional_homework_materials (
-                id    TEXT PRIMARY KEY,
-                title TEXT,
-                urls  TEXT NOT NULL
-            )",
+                "
+                CREATE TABLE IF NOT EXISTS additional_homework_materials (
+                    id    TEXT PRIMARY KEY,
+                    title TEXT,
+                    urls  TEXT NOT NULL
+                )
+                ",
                 (),
             )
             .context("Error in SQL that creates additional_homework_materials table")?;
         connection
             .execute(
-                "CREATE TABLE IF NOT EXISTS homeworks (
-                id                   INTEGER PRIMARY KEY,
-                task                 TEXT NOT NULL,
-                subject_name         TEXT NOT NULL,
-                created_at           TEXT NOT NULL,
-                updated_at           TEXT NOT NULL,
-                assigned_on          TEXT NOT NULL,
-                date_prepared_for    TEXT NOT NULL,
-                additional_materials TEXT NOT NULL
-            )",
+                "
+                CREATE TABLE IF NOT EXISTS homeworks (
+                    id                   INTEGER PRIMARY KEY,
+                    task                 TEXT NOT NULL,
+                    subject_name         TEXT NOT NULL,
+                    created_at           TEXT NOT NULL,
+                    updated_at           TEXT NOT NULL,
+                    assigned_on          TEXT NOT NULL,
+                    date_prepared_for    TEXT NOT NULL,
+                    additional_materials TEXT NOT NULL
+                )
+                ",
                 (),
             )
             .context("Error in SQL that creates homeworks table")?;
         connection
             .execute(
-                "CREATE TABLE IF NOT EXISTS lesson_schedules (
-                subject_name      TEXT NOT NULL,
-                room_number       INTEGER,
-                date              TEXT NOT NULL,
-                begin_time        TEXT NOT NULL,
-                end_time          TEXT NOT NULL,
-                absence_reason_id INTEGER,
-                schedule_item_id  INTEGER PRIMARY KEY
-            )",
+                "
+                CREATE TABLE IF NOT EXISTS lesson_schedules (
+                    subject_name      TEXT NOT NULL,
+                    room_number       INTEGER,
+                    date              TEXT NOT NULL,
+                    begin_time        TEXT NOT NULL,
+                    end_time          TEXT NOT NULL,
+                    absence_reason_id INTEGER,
+                    schedule_item_id  INTEGER PRIMARY KEY,
+                    lesson_type       TEXT NOT NULL
+                )
+                ",
                 (),
             )
             .context("Error in SQL that creates lesson_schedules table")?;
@@ -159,8 +166,8 @@ impl MutDatabase<'_> {
 
     pub fn store_lesson_schedules(&self, lesson_schedules: Vec<LessonSchedule>) -> Result<()> {
         let mut stmt = self.transaction.prepare_cached(
-            "INSERT OR IGNORE INTO lesson_schedules (subject_name, room_number, date, begin_time, end_time, absence_reason_id, schedule_item_id)
-                VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)"
+            "INSERT OR IGNORE INTO lesson_schedules (subject_name, room_number, date, begin_time, end_time, absence_reason_id, schedule_item_id, lesson_type)
+                VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)"
         )
         .context("SQL syntax error in expression that inserts lesson_schedules")?;
         for lesson_schedule in lesson_schedules {
@@ -172,6 +179,7 @@ impl MutDatabase<'_> {
                 lesson_schedule.end_time,
                 lesson_schedule.absence_reason_id,
                 lesson_schedule.schedule_item_id,
+                lesson_schedule.lesson_type,
             ))
             .context("Failed to add lesson schedule")?;
         }
