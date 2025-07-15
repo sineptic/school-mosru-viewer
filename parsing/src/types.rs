@@ -89,11 +89,12 @@ pub mod schedule {
 
     use crate::{raw_types::schedule as raw_types, time};
 
+    type Loading<T> = Option<T>;
+
     #[derive(Debug, Serialize)]
     pub struct LessonSchedule {
-        pub lesson_id: Option<u64>,
-        pub subject_id: Option<u64>,
-        pub subject_name: Option<String>,
+        pub subject_name: String,
+        pub room_number: Loading<String>,
         pub date: time::Date,
         pub begin_time: time::Time,
         pub end_time: time::Time,
@@ -105,9 +106,8 @@ pub mod schedule {
             assert!(!value.is_virtual);
 
             Some(LessonSchedule {
-                lesson_id: value.lesson_id,
-                subject_id: value.subject_id,
-                subject_name: value.subject_name,
+                subject_name: value.subject_name.unwrap_or(value.group_name),
+                room_number: None,
                 date,
                 begin_time: value.begin_time,
                 end_time: value.end_time,
@@ -138,8 +138,7 @@ pub mod homework {
     pub struct Homework {
         pub id: u64,
         pub task: String,
-        pub entry_id: u64,
-        pub entry_student_id: u64,
+        pub subject_name: String,
         pub created_at: DateTime,
         pub updated_at: DateTime,
         pub assigned_on: Date,
@@ -160,9 +159,6 @@ pub mod homework {
                 value.uuid.is_some() && value.id.is_none()
                     || value.uuid.is_none() && value.id.is_some()
             );
-            if let Some(id) = value.id {
-                dbg!(id);
-            }
 
             Self {
                 id: value.uuid.unwrap_or_else(|| value.id.unwrap().to_string()),
@@ -185,46 +181,11 @@ pub mod homework {
             Self {
                 id: value.homework_id,
                 task: value.homework,
+                subject_name: value.subject_name,
                 additional_materials: value.materials.into_iter().map(|x| x.into()).collect(),
-                entry_id: value.homework_entry_id,
-                entry_student_id: value.homework_entry_student_id,
                 created_at: value.homework_created_at,
                 updated_at: value.homework_updated_at,
                 assigned_on: value.date_assigned_on,
-                date_prepared_for: value.date_prepared_for.date,
-            }
-        }
-    }
-    impl From<raw_types::details::LessonHomework> for Homework {
-        fn from(value: raw_types::details::LessonHomework) -> Self {
-            assert_eq!(
-                value.date_prepared_for.time,
-                Time {
-                    hours: 0,
-                    minutes: 0
-                }
-            );
-            assert_eq!(
-                value.date_assigned_on.time,
-                Time {
-                    hours: 0,
-                    minutes: 0
-                }
-            );
-
-            Self {
-                id: value.homework_id,
-                task: value.homework,
-                additional_materials: value
-                    .additional_materials
-                    .into_iter()
-                    .map(|x| x.into())
-                    .collect(),
-                entry_id: value.homework_entry_id,
-                entry_student_id: value.homework_entry_student_id,
-                created_at: value.homework_created_at,
-                updated_at: value.homework_updated_at,
-                assigned_on: value.date_assigned_on.date,
                 date_prepared_for: value.date_prepared_for.date,
             }
         }

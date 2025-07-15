@@ -7,7 +7,7 @@ use crate::types::{
     homework::{AdditionalMaterial, Homework},
 };
 pub struct Database {
-    pub connection: Connection,
+    connection: Connection,
 }
 pub struct MutDatabase<'a> {
     transaction: Transaction<'a>,
@@ -27,8 +27,7 @@ impl Database {
             "CREATE TABLE IF NOT EXISTS homeworks (
                     id                   INTEGER PRIMARY KEY,
                     task                 TEXT NOT NULL,
-                    entry_id             INTEGER NOT NULL,
-                    entry_student_id     INTEGER NOT NULL,
+                    subject_name         TEXT NOT NULL,
                     created_at           TEXT NOT NULL,
                     updated_at           TEXT NOT NULL,
                     assigned_on          TEXT NOT NULL,
@@ -39,13 +38,22 @@ impl Database {
         )?;
         Ok(Self { connection })
     }
-    pub fn transaction(&mut self) -> Result<MutDatabase<'_>> {
+    pub fn start_transaction(&mut self) -> Result<MutDatabase<'_>> {
         Ok(MutDatabase {
             transaction: self
                 .connection
                 .transaction()
                 .context("Failed to start transaction")?,
         })
+    }
+    pub fn transaction(
+        &mut self,
+        handle: impl FnOnce(&mut MutDatabase) -> anyhow::Result<()>,
+    ) -> Result<()> {
+        let mut tr = self.start_transaction()?;
+        handle(&mut tr)?;
+        tr.commit()?;
+        Ok(())
     }
 }
 impl MutDatabase<'_> {
@@ -82,8 +90,8 @@ impl MutDatabase<'_> {
 
     pub fn store_homeworks(&self, hws: Vec<Homework>) -> Result<()> {
         let mut stmt = self.transaction.prepare_cached(
-            "INSERT OR REPLACE INTO homeworks (id, task, entry_id, entry_student_id, created_at, updated_at, assigned_on, date_prepared_for, additional_materials)
-                    VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)",
+            "INSERT OR REPLACE INTO homeworks (id, task, subject_name, created_at, updated_at, assigned_on, date_prepared_for, additional_materials)
+                    VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
                     )?;
 
         let (additional_materials, other): (Vec<_>, Vec<_>) = hws
@@ -100,8 +108,7 @@ impl MutDatabase<'_> {
                     (
                         hw.id,
                         hw.task,
-                        hw.entry_id,
-                        hw.entry_student_id,
+                        hw.subject_name,
                         hw.created_at,
                         hw.updated_at,
                         hw.assigned_on,
@@ -160,8 +167,7 @@ impl Database {
                     x.get_unwrap(4),
                     x.get_unwrap(5),
                     x.get_unwrap(6),
-                    x.get_unwrap(7),
-                    deserialize::<Vec<String>>(x.get_unwrap(8)),
+                    deserialize::<Vec<String>>(x.get_unwrap(7)),
                 ))
             })
             .optional()
@@ -170,14 +176,13 @@ impl Database {
             Ok(Some(Homework {
                 id: a.0,
                 task: a.1,
-                entry_id: a.2,
-                entry_student_id: a.3,
-                created_at: a.4,
-                updated_at: a.5,
-                assigned_on: a.6,
-                date_prepared_for: a.7,
+                subject_name: a.2,
+                created_at: a.3,
+                updated_at: a.4,
+                assigned_on: a.5,
+                date_prepared_for: a.6,
                 additional_materials: {
-                    a.8.into_iter()
+                    a.7.into_iter()
                         .map(|id| {
                             self.get_homework_additional_material(&id)
                                 .transpose()

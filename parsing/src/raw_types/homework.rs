@@ -12,6 +12,7 @@ pub struct Root {
 #[serde(deny_unknown_fields)]
 pub struct Homework {
     pub homework: String,
+    pub subject_name: String,
     pub homework_entry_student_id: u64,
     pub homework_id: u64,
     pub homework_entry_id: u64,
@@ -24,7 +25,6 @@ pub struct Homework {
 
     #[serde(rename = "type")]
     pub type_field: HomeworkType,
-    pub subject_name: String,
     pub lesson_date_time: DateTime,
     pub subject_id: u64,
     pub group_id: u64,

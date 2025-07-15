@@ -16,7 +16,10 @@ fn main() -> anyhow::Result<()> {
     let hws: Vec<types::homework::Homework> =
         serde_json::from_str(&std::fs::read_to_string("homeworks.json")?)?;
     let now = Instant::now();
-    db.transaction()?.store_homeworks(hws)?;
+    db.transaction(|tr| {
+        tr.store_homeworks(hws)?;
+        Ok(())
+    })?;
     let elapsed = now.elapsed();
     dbg!(elapsed);
 
@@ -24,9 +27,18 @@ fn main() -> anyhow::Result<()> {
     // let client = ApiClient::new(std::env::var("MOSRU_BEARER")?);
     // let student_id = 31823383;
 
-    // let endpoint = api::Schedule {
+    // let endpoint = api::Homework {
     //     student_id,
-    //     dates: _all_possible_dates(),
+    //     from: Date {
+    //         year: 2024,
+    //         month: 9,
+    //         day: 1,
+    //     },
+    //     to: Date {
+    //         year: 2025,
+    //         month: 5,
+    //         day: 31,
+    //     },
     // };
     // let response = client.trigger_endpoint(endpoint)?;
     // // dbg!(response);
