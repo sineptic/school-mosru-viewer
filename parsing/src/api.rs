@@ -56,8 +56,14 @@ impl ApiClient {
                 let end = min(column + 40, response.len());
                 let span = &response[start..end];
                 eprintln!();
-                eprintln!("context: '{span}'");
-                eprintln!("{}^", " ".repeat(49));
+                eprint!("context: '");
+                for ch in span.chars() {
+                    eprint!("{}", " ".repeat(ch.len_utf8() - 1));
+                    eprint!("{ch}");
+                }
+                eprintln!("'");
+                // eprintln!("context: '{span}'");
+                eprintln!("{}^", " ".repeat(50));
 
                 panic!();
             }
@@ -201,7 +207,7 @@ pub struct LessonScheduleItems {
 impl From<LessonScheduleItems> for Url {
     fn from(value: LessonScheduleItems) -> Self {
         format!(
-            "https://school.mos.ru/api/family/web/v1/lesson_schedule_items/{}?student_id={}",
+            "https://school.mos.ru/api/family/web/v1/lesson_schedule_items/{}?student_id={}&type=EC",
             value.schedule_item_id, value.student_id
         )
         .parse()

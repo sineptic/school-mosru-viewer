@@ -94,7 +94,7 @@ pub mod schedule {
     #[derive(Debug, Serialize, Deserialize)]
     pub struct LessonSchedule {
         pub subject_name: String,
-        pub room_number: Loading<String>,
+        pub room_number: Loading<u32>,
         pub date: time::Date,
         pub begin_time: time::Time,
         pub end_time: time::Time,

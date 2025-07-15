@@ -11,41 +11,49 @@ mod types;
 mod database;
 
 fn main() -> anyhow::Result<()> {
-    use database::*;
-    let mut db = Database::open()?;
-    let schedule: Vec<types::schedule::LessonSchedule> =
-        serde_json::from_str(&std::fs::read_to_string("schedule.json")?)?;
-    dbg!(schedule.len());
-    let now = Instant::now();
-    // let mut stmt = db.connection.prepare("select * from lesson_schedules")?;
-    // let count = stmt.query(())?.count()?;
-    db.transaction(|tr| {
-        tr.store_lesson_schedules(schedule)?;
-        Ok(())
-    })?;
-    let elapsed = now.elapsed();
-    dbg!(elapsed);
+    // use database::*;
+    // let mut db = Database::open()?;
+    // let schedule: Vec<types::schedule::LessonSchedule> =
+    //     serde_json::from_str(&std::fs::read_to_string("schedule.json")?)?;
+    // let now = Instant::now();
+    // db.transaction(|tr| {
+    //     tr.store_lesson_schedules(schedule)?;
+    //     Ok(())
+    // })?;
+    // let elapsed = now.elapsed();
+    // dbg!(elapsed);
 
-    // dotenvy::dotenv()?;
-    // let client = ApiClient::new(std::env::var("MOSRU_BEARER")?);
-    // let student_id = 31823383;
+    // let detailed_schedule: Vec<raw_types::details::LessonDetails> =
+    //     serde_json::from_str(&std::fs::read_to_string("detailed_schedule.json")?)?;
 
-    // let endpoint = api::Homework {
-    //     student_id,
-    //     from: Date {
-    //         year: 2024,
-    //         month: 9,
-    //         day: 1,
-    //     },
-    //     to: Date {
-    //         year: 2025,
-    //         month: 5,
-    //         day: 31,
-    //     },
-    // };
-    // let response = client.trigger_endpoint(endpoint)?;
-    // // dbg!(response);
-    // // std::fs::write("homeworks.json", serde_json::to_string_pretty(&response)?)?;
+    // db.transaction(|tr| {
+    //     for lesson_schedule in detailed_schedule {
+    //         tr.add_room_for_lesson_schedule(
+    //             lesson_schedule.id,
+    //             lesson_schedule.room_number.parse().unwrap(),
+    //         )?;
+    //     }
+    //     Ok(())
+    // })?;
+
+    // let schedule: Vec<raw_types::details::LessonDetails> =
+    //     serde_json::from_str(&std::fs::read_to_string("detailed_schedule.json")?)?;
+    // for lesson_schedule in schedule {
+    //     assert!(lesson_schedule.room_number.parse::<u32>().is_ok());
+    // }
+
+    dotenvy::dotenv()?;
+    let client = ApiClient::new(std::env::var("MOSRU_BEARER")?);
+    let student_id = 31823383;
+
+    let endpoint = api::LessonScheduleItems {
+        student_id,
+        schedule_item_id: 28864937,
+        // schedule_item_id: 460496683,
+    };
+    let response = client.trigger_endpoint(endpoint)?;
+    dbg!(response);
+    // std::fs::write("homeworks.json", serde_json::to_string_pretty(&response)?)?;
 
     Ok(())
 }

@@ -21,6 +21,8 @@ pub enum LessonEducationType {
 pub enum LessonType {
     Normal,
     Remote,
+    #[serde(rename = "")]
+    None,
 }
 
 #[derive(Debug, Deserialize)]

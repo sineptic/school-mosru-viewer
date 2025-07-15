@@ -47,7 +47,7 @@ impl Database {
             .execute(
                 "CREATE TABLE IF NOT EXISTS lesson_schedules (
                 subject_name      TEXT NOT NULL,
-                room_number       TEXT,
+                room_number       INTEGER,
                 date              TEXT NOT NULL,
                 begin_time        TEXT NOT NULL,
                 end_time          TEXT NOT NULL,
@@ -173,8 +173,24 @@ impl MutDatabase<'_> {
                 lesson_schedule.absence_reason_id,
                 lesson_schedule.schedule_item_id,
             ))
-            .context("Failed to add one of lesson schedules")?;
+            .context("Failed to add lesson schedule")?;
         }
+        Ok(())
+    }
+
+    pub fn add_room_for_lesson_schedule(&self, schedule_item_id: u64, room: u32) -> Result<()> {
+        let mut stmt = self
+            .transaction
+            .prepare_cached(
+                "
+                UPDATE lesson_schedules
+                SET room_number = ?1
+                WHERE schedule_item_id = ?2
+                ",
+            )
+            .context("SQL syntax error in expression that adds room number to lesson schedule")?;
+        stmt.execute((room, schedule_item_id))
+            .context("Failed to add room number to lesson schedule")?;
         Ok(())
     }
 }

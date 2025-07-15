@@ -20,7 +20,7 @@ pub struct LessonDetails {
 
     pub begin_utc: u64,
     pub end_utc: u64,
-    pub plan_id: u64,
+    pub plan_id: Option<u64>,
     pub course_lesson_type: Option<CourseLessonType>,
     pub room_name: String,
     pub building_name: String,
@@ -32,11 +32,12 @@ pub struct LessonDetails {
     pub lesson_education_type: LessonEducationType,
     pub disease_status_type: Option<DeseaseStatusType>,
     pub is_virtual: bool,
-    pub homework_presence_status_id: u64,
+    pub homework_presence_status_id: Option<u64>,
+    pub group_id: u64, //
 
     pub marks: Vec<()>,
     pub created_date_time: (),
-    pub field_name: (),
+    pub field_name: Option<String>,
     pub comment: (),
     pub esz_field_id: (),
     pub teacher_comments: Vec<()>,
@@ -96,8 +97,8 @@ pub struct HomeworkToGive {
 pub struct Details {
     pub theme: Option<Theme>,
     #[serde(rename = "lessonId")]
-    pub lesson_id: u64,
-    pub lesson_topic: String,
+    pub lesson_id: Option<u64>,
+    pub lesson_topic: Option<String>,
     pub additional_materials: Vec<AdditionalMaterial>,
     pub content: Vec<()>,
 }
@@ -110,7 +111,7 @@ pub struct Theme {
     #[serde(rename = "themeIntegrationId")]
     pub theme_integration_id: Option<u64>,
     pub average_mark: (),
-    pub theme_frames: Vec<Theme>,
+    pub theme_frames: Option<Vec<Theme>>,
     pub oge_task_name: (),
     pub ege_task_name: Option<Vec<String>>,
 }
