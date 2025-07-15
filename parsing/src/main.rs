@@ -16,6 +16,8 @@ fn main() -> anyhow::Result<()> {
     let hws: Vec<types::homework::Homework> =
         serde_json::from_str(&std::fs::read_to_string("homeworks.json")?)?;
     let now = Instant::now();
+    // let mut stmt = db.connection.prepare("select * from homeworks")?;
+    // let count = stmt.query(())?.count()?;
     db.transaction(|tr| {
         tr.store_homeworks(hws)?;
         Ok(())

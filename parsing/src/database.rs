@@ -7,7 +7,7 @@ use crate::types::{
     homework::{AdditionalMaterial, Homework},
 };
 pub struct Database {
-    connection: Connection,
+    pub connection: Connection,
 }
 pub struct MutDatabase<'a> {
     transaction: Transaction<'a>,
@@ -78,7 +78,7 @@ impl MutDatabase<'_> {
         materials: Vec<AdditionalMaterial>,
     ) -> Result<()> {
         let mut stmt = self.transaction.prepare_cached(
-            "INSERT OR REPLACE INTO additional_homework_materials (id, title, urls)
+            "INSERT OR IGNORE INTO additional_homework_materials (id, title, urls)
                 VALUES (?1, ?2, ?3)",
         )?;
         for material in materials {
@@ -90,7 +90,7 @@ impl MutDatabase<'_> {
 
     pub fn store_homeworks(&self, hws: Vec<Homework>) -> Result<()> {
         let mut stmt = self.transaction.prepare_cached(
-            "INSERT OR REPLACE INTO homeworks (id, task, subject_name, created_at, updated_at, assigned_on, date_prepared_for, additional_materials)
+            "INSERT OR IGNORE INTO homeworks (id, task, subject_name, created_at, updated_at, assigned_on, date_prepared_for, additional_materials)
                     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
                     )?;
 
