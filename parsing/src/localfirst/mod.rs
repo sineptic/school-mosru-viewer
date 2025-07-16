@@ -11,7 +11,6 @@ mod fetcher;
 
 pub struct State {
     db: crate::database::Database,
-    student_id: u64,
     high_priority_queue: mpsc::Sender<Query>,
     low_priority_queue: mpsc::Sender<Query>,
     updated_since_last_reload: &'static AtomicBool,
@@ -20,7 +19,6 @@ pub enum Query {
     UpdateSchedule,
     SaturateLessonSchedule { schedule_item_id: u64 },
 }
-pub enum StateUpdate {}
 
 impl State {
     pub fn open(api_key: String, student_id: u64) -> Result<Self> {
@@ -41,7 +39,6 @@ impl State {
         });
         Ok(Self {
             db,
-            student_id,
             high_priority_queue: high_priority_sender,
             low_priority_queue: low_priority_sender,
             updated_since_last_reload: updated_since_last_query,

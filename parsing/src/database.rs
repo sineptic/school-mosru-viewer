@@ -1,9 +1,8 @@
 use anyhow::Context;
-use rusqlite::{Connection, OptionalExtension, Transaction};
+use rusqlite::{Connection, Transaction};
 use serde::{Serialize, de::DeserializeOwned};
 
 use crate::types::{
-    self,
     homework::{AdditionalMaterial, Homework},
     schedule::LessonSchedule,
 };
@@ -98,8 +97,8 @@ use anyhow::Result;
 fn serialize<T: Serialize>(val: T) -> String {
     serde_json::to_string(&val).unwrap()
 }
-fn deserialize<T: DeserializeOwned>(input: String) -> T {
-    serde_json::from_str(&input).unwrap()
+fn deserialize<T: DeserializeOwned>(input: impl AsRef<str>) -> T {
+    serde_json::from_str(input.as_ref()).unwrap()
 }
 
 impl MutDatabase<'_> {

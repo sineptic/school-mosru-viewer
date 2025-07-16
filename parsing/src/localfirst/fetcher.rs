@@ -7,8 +7,6 @@ use std::{
     time::{Duration, Instant},
 };
 
-use rusqlite::OptionalExtension;
-
 use crate::{api, database::Database, localfirst::Query, raw_types::enums::LessonEducationType};
 
 #[derive(Default)]
@@ -44,10 +42,10 @@ pub fn start_fetcher(
         match query {
             Query::UpdateSchedule => {
                 if cache.schedule_update_cached() {
-                    eprintln!("schedule update cached");
+                    log::debug!("schedule update cached");
                     continue;
                 }
-                eprintln!("updating schedule");
+                log::debug!("updating schedule");
                 let schedule = api_client
                     .trigger_endpoint(api::Schedule {
                         student_id,
@@ -77,10 +75,10 @@ pub fn start_fetcher(
                         .unwrap()
                         .is_some()
                 {
-                    eprintln!("detailed schedule update with id {schedule_item_id} cached");
+                    log::debug!("detailed schedule update with id {schedule_item_id} cached");
                     continue;
                 }
-                eprintln!("updating detailed schedule with id {schedule_item_id}");
+                log::debug!("updating detailed schedule with id {schedule_item_id}");
                 let lesson_type: LessonEducationType = db
                     .connection
                     .query_one(
