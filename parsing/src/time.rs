@@ -96,11 +96,22 @@ impl Ord for Date {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
         assert!(self.is_correct());
         assert!(other.is_correct());
-        self.year.cmp(&other.year).then_with(|| {
-            self.month
-                .cmp(&other.month)
-                .then_with(|| self.day.cmp(&other.day))
-        })
+        self.year
+            .cmp(&other.year)
+            .then(self.month.cmp(&other.month))
+            .then(self.day.cmp(&other.day))
+    }
+}
+impl PartialOrd for Time {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+impl Ord for Time {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        self.hours
+            .cmp(&other.hours)
+            .then(self.minutes.cmp(&other.minutes))
     }
 }
 impl FromStr for Date {

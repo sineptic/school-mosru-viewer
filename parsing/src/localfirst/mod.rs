@@ -77,7 +77,13 @@ impl State {
         self.high_priority_queue
             .send(Query::UpdateSchedule)
             .unwrap();
-        for schedule_item_id in result.iter().map(|lesson| lesson.schedule_item_id) {
+        for schedule_item_id in result
+            .iter()
+            .filter(
+                |lesson| lesson.room_number.is_none() && lesson.schedule_item_id != 464137127, // school.mos.ru bug
+            )
+            .map(|lesson| lesson.schedule_item_id)
+        {
             self.low_priority_queue
                 .send(Query::SaturateLessonSchedule { schedule_item_id })
                 .unwrap();

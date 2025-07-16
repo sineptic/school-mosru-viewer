@@ -2,7 +2,7 @@ use std::{collections::BTreeMap, time::Instant};
 
 use anyhow::Context;
 
-use crate::{api::ApiClient, time::Date};
+use crate::{api::ApiClient, time::Date, types::schedule::LessonSchedule};
 
 pub mod api;
 #[allow(unused)]
@@ -13,6 +13,26 @@ pub mod types;
 mod database;
 
 mod localfirst;
+
+fn display_schedule(mut lessons: Vec<LessonSchedule>) {
+    println!("=======================");
+    lessons.sort_by(|a, b| a.date.cmp(&b.date).then(a.begin_time.cmp(&b.begin_time)));
+    let mut date = None;
+    for lesson in lessons {
+        if Some(lesson.date) != date {
+            println!();
+            println!("{}", lesson.date);
+            date = Some(lesson.date);
+        }
+        if let Some(room) = lesson.room_number {
+            print!("{room:3}: ");
+        } else {
+            print!("___  ");
+        }
+        println!("{}", lesson.subject_name);
+    }
+    println!("=======================");
+}
 
 fn main() -> anyhow::Result<()> {
     let student_id = 31823383;
@@ -31,10 +51,10 @@ fn main() -> anyhow::Result<()> {
         Date {
             year: 2024,
             month: 9,
-            day: 5,
+            day: 3,
         },
     )?;
-    dbg!(a.len());
+    display_schedule(a);
     while !state.should_update() {
         std::thread::sleep_ms(100);
     }
@@ -47,11 +67,11 @@ fn main() -> anyhow::Result<()> {
         Date {
             year: 2024,
             month: 9,
-            day: 5,
+            day: 3,
         },
     )?;
-    dbg!(a.len());
-    std::thread::sleep_ms(2000);
+    display_schedule(a);
+    std::thread::sleep_ms(5000);
     assert!(state.should_update());
     let b = state.schedule(
         Date {
@@ -62,9 +82,10 @@ fn main() -> anyhow::Result<()> {
         Date {
             year: 2024,
             month: 9,
-            day: 5,
+            day: 3,
         },
     )?;
+    display_schedule(b);
     // std::fs::write("a.json", serde_json::to_string_pretty(&a).unwrap()).unwrap();
     // std::fs::write("b.json", serde_json::to_string_pretty(&b).unwrap()).unwrap();
     // dbg!(a, b);
