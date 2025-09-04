@@ -26,12 +26,12 @@ fn main() -> anyhow::Result<()> {
     )
     .context("failed to load application state")?;
     let from = Date {
-        year: 2024,
+        year: 2025,
         month: 9,
-        day: 2,
+        day: 1,
     };
     let to = Date {
-        year: 2024,
+        year: 2026,
         month: 9,
         day: 3,
     };
@@ -82,12 +82,12 @@ fn _register_maybe(storage: &mut BTreeMap<String, u32>, key: Option<impl ToStrin
 fn _all_possible_dates() -> Vec<Date> {
     let mut dates = Vec::new();
     let start = Date {
-        year: 2024,
+        year: 2025,
         month: 9,
         day: 1,
     };
     let end = Date {
-        year: 2025,
+        year: 2026,
         month: 5,
         day: 31,
     };

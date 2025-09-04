@@ -16,7 +16,7 @@ struct Cache {
 }
 
 const INVALIDATION_TIME: Duration = Duration::from_secs(600);
-const REQUESTS_DELAY: Duration = Duration::from_millis(1000);
+const REQUESTS_DELAY: Duration = Duration::from_millis(100);
 
 pub fn start_fetcher(
     api_key: String,
